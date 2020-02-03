@@ -1,9 +1,54 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Once the DOM is loaded we fetch our pokemon and set up additional event listeners
+  console.log("The DOM is LOADED")
+ 
   fetchPokemon();
   deletePokemon();
-  // createPokemon();
+  createPokemon();
 });
+
+function createPokemon() {
+  // grab the place we'll put the new pokemon:
+  const createPokemonForm = document.querySelector("#pokemon-post-form")
+
+  // put event listener on the pokemon form (NOT the submit button):
+  const pokemonPostForm = document.querySelector('#pokemon-post-form')
+  pokemonPostForm.addEventListener('submit', function(event) {
+     event.preventDefault();
+    // grab info that the user has entered in the form
+    const name = document.getElementById('name-input').value
+    const front = document.getElementById('sprite-input-front').value
+    const back = document.getElementById('sprite-input-back').value
+     
+    //construct data in the from it is in the database
+    const data = {
+      name: name,
+      sprites: {
+        front: front,
+        back: back
+      }
+    };
+
+    //send entered info to backend.
+    fetch("http://localhost:3000/pokemon", { 
+      method: "POST", 
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(resp => resp.json())
+      .then(newPokemon => {
+        const pokemonContainer = document.querySelector('#pokemon-container')
+        const newPokemonDiv = renderSinglePokemon(newPokemon);
+        pokemonContainer.innerHTML += newPokemonDiv;
+      });
+
+
+    // NO Optimistic render because we need the id automatically assigned
+      // to the new pokemon that only comes from the backend
+    
+
+  });
+}
 
 function deletePokemon() {
   const pokemonContainer = document.querySelector('#pokemon-container');
